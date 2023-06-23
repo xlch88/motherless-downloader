@@ -46,12 +46,13 @@ export default {
 		return rt;
 	},
 	async getPage(url, page = 1) {
-		let data = await this.get(`${url}${url.indexOf("?") !== -1 ? "&" : "?"}page=${page}`);
+		let pageUrl = `${url}${url.indexOf("?") !== -1 ? "&" : "?"}page=${page}`;
+		let data = await this.get(pageUrl);
 		let jsdom = new JSDOM(data);
 		let $ = jquery(jsdom.window);
 
 		let rt = [];
-		$("#content .content-wrapper .content-inner .thumb-container").each((i, dom) => {
+		$(".content-inner .thumb-container", $('#content .content-wrapper ').get(0)).each((i, dom) => {
 			let id = $("a", dom).attr("href").replace("https://motherless.com/", "");
 			let type =
 				$(dom).attr("class").indexOf("video") !== -1
@@ -59,7 +60,7 @@ export default {
 					: $(dom).attr("class").indexOf("image") !== -1
 					? "image"
 					: "other";
-			let title = $(".captions a", dom).html().trim();
+			let title = $(".title", dom).html().trim();
 			let author = $(".uploader", dom).html().trim();
 
 			rt.push({ id, type, title, author });
